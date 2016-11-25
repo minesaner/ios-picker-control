@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Document</title>
+	<meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0, maximum-scale=1.0, minimum-scale=1.0">
+	<link rel="stylesheet" href="css.css">
+	<style>
+	*{margin:0;padding:0}
+	body{background:#f1f1f1}
+	</style>
+</head>
+<body>
+	<div class="picker-control" id="picker-control">
+		<div class="picker-bar">
+			<div class="bar-button left">取消</div>
+			<div class="bar-button right">确认</div>
+			<div class="bar-title" id="bar-title"></div>
+		</div>
+		<div class="pickers picker-3">
+			<div class="picker">
+				<div class="picker-list">
+					<!--<div class="picker-item" data-value="1">111</div>-->
+				</div>
+				<div class="picker-mask up"></div>
+				<div class="picker-view"></div>
+				<div class="picker-mask down"></div>
+			</div>
+			<div class="picker">
+				<div class="picker-list"></div>
+				<div class="picker-mask up"></div>
+				<div class="picker-view"></div>
+				<div class="picker-mask down"></div>
+			</div>
+			<div class="picker">
+				<div class="picker-list"></div>
+				<div class="picker-mask up"></div>
+				<div class="picker-view"></div>
+				<div class="picker-mask down"></div>
+			</div>
+		</div>
+	</div>
+	<script src="zepto.js"></script>
+	<script src="picker-control.js"></script>
+	<script>
+	var daysMap = [];
+
+	for (var i = 1; i <= 12; i++) {
+		if (i === 1 || i === 3 || i === 5 || i === 7 || i === 8 || i === 10 || i === 12) {
+			daysMap.push(31);
+		} else if (i === 2) {
+			daysMap.push(28);
+		} else {
+			daysMap.push(30);
+		}
+	}
+
+	var barTitle = $('#bar-title');
+	var pickerControl = PickerControl({
+		dom: $('#picker-control'),
+		count: 3,
+		itemHeight: 36,
+		maskSize: 90,
+		changedEvent: function (data) {
+			if (data.pickerIndex === 0) {
+				if (this.getSelectedIndex(1) === 1) {
+					this.setItems(2, dayData(data.data.value, 2), this.getSelectedIndex(2));
+				}
+			} else if (data.pickerIndex === 1) {
+				this.setItems(2, dayData(this.getPickedData(0).data.value, data.data.value), this.getSelectedIndex(2));
+			}
+
+			barTitle.text(this.getPickedData(0).data.text + this.getPickedData(1).data.text + this.getPickedData(2).data.text);
+		},
+		cancelEvent: function () {
+			console.log('cancel')
+		},
+		confirmEvent: function (data) {
+			console.log(data)
+		}
+	});
+
+	pickerControl.setItems(0, yearData(), 0, true);
+	pickerControl.setItems(1, monthData());
+	
+	function isLeapYear(year) {
+		year = Number(year);
+		return year % 400 === 0 || (year % 4 === 0 && year % 100 !== 0);
+	}
+
+	function yearData() {
+		var yearData = [];
+		var currentYear = new Date().getFullYear();
+
+		for (var i = 0; i < 10; i++) {
+			yearData.push({
+				value: currentYear - i,
+				text: currentYear - i + '年'
+			});
+		}
+
+		return yearData;
+	}
+
+	function monthData() {
+		var monthData = [];
+
+		for (var i = 1; i <= 12; i++) {
+			monthData.push({
+				value: i,
+				text: i + '月'
+			});
+		}
+
+		return monthData;
+	}
+
+	function dayData(year, month) {
+		var daysCount = daysMap[month - 1];
+		var dayData = [];
+
+		for (var i = 1; i <= daysCount; i++) {
+			dayData.push({
+				value: i,
+				text: i + '日'
+			});
+		}
+
+		if (isLeapYear(year) && dayData.length === 28) {
+			dayData.push({
+				value: 29,
+				text: 29 + '日'
+			});
+		}
+
+		return dayData;
+	}
+	</script>
+</body>
+</html>
